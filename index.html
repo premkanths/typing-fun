@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn Fun - Typing Test</title>
+    <!-- Use Inter font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900;1,100..900&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables for Theming */
+        :root {
+            /* Default Theme (Dark) - Based on screenshot */
+            --bg-color: #2b2b2b; /* Darker background */
+            --text-color: #e0e0e0;
+            --accent-color: #f77c38;
+            --correct-color: #38bdf8; /* Blue */
+            --incorrect-color: #ef4444; /* Red */
+            --primary-bg: #3a3a3a; /* Used for controls */
+            --secondary-bg: #4a4a4a; /* Used for controls background */
+            --border-radius: 8px;
+            --font-main: 'Inter', sans-serif;
+            --font-mono: 'Roboto Mono', monospace;
+            --font-fancy: 'Montserrat', sans-serif;
+        }
+
+        /* Color Theme 1: Default Dark (Kept in :root) */
+        .theme-default {
+            --bg-color: #2b2b2b;
+            --text-color: #e0e0e0;
+            --accent-color: #f77c38;
+            --correct-color: #38bdf8;
+            --primary-bg: #3a3a3a;
+            --secondary-bg: #4a4a4a;
+        }
+
+        /* Color Theme 2: Minimal Light */
+        .theme-light {
+            --bg-color: #f0f0f0;
+            --text-color: #333333;
+            --accent-color: #10b981; /* Green */
+            --correct-color: #2563eb; /* Blue */
+            --incorrect-color: #dc2626; /* Red */
+            --primary-bg: #ffffff;
+            --secondary-bg: #e5e5e5;
+        }
+
+        /* Color Theme 3: Retro Purple */
+        .theme-retro {
+            --bg-color: #2b1f3c;
+            --text-color: #fff0f5;
+            --accent-color: #ff69b4; /* Hot Pink */
+            --correct-color: #9333ea; /* Deep Purple */
+            --incorrect-color: #facc15; /* Yellow */
+            --primary-bg: #402f5a;
+            --secondary-bg: #553e7a;
+        }
+
+        /* Base Styles */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: var(--font-main);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.5s ease, color 0.5s ease;
+            overflow-x: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        /* Background Animation (Gradient Transition) */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(-45deg, var(--primary-bg), var(--bg-color), var(--secondary-bg));
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Main Layout */
+        #app-container {
+            width: 90%;
+            max-width: 900px;
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            /* Center the entire app vertically and horizontally */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        header h1 {
+            color: var(--accent-color);
+            font-size: 3.5rem; /* Larger title */
+            margin-bottom: 30px;
+            transition: color 0.3s ease;
+        }
+
+        /* Content Generation Area Styling */
+        #content-generator {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            padding: 10px;
+            background-color: var(--primary-bg);
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        #content-input {
+            flex-grow: 1;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid var(--secondary-bg);
+            background-color: var(--secondary-bg);
+            color: var(--text-color);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        
+        #content-input:focus {
+            border-color: var(--accent-color);
+        }
+        
+        #generate-btn {
+            padding: 10px 20px;
+            background-color: var(--accent-color);
+            color: var(--bg-color);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        
+        #generate-btn:hover {
+            background-color: #e66a2a;
+        }
+
+        #loading-indicator {
+            color: var(--accent-color);
+            font-size: 1rem;
+            margin-left: 10px;
+            display: none;
+        }
+
+
+        /* Typing Area - Redesigned for Monkeytype look (No Box/Fixed Height) */
+        #word-container {
+            font-family: var(--font-mono);
+            font-size: 2.2rem;
+            line-height: 1.5;
+            
+            /* REMOVED BOX STYLING */
+            padding: 20px 0; /* More vertical padding for open feel */
+            margin-bottom: 20px;
+            
+            height: auto; /* ALLOW height to grow based on content */
+            max-height: 300px; /* Set a reasonable max height for scrolling */
+            overflow-y: hidden; /* Allow vertical scroll if content exceeds max-height */
+            
+            text-align: left;
+            user-select: none;
+            position: relative;
+            transition: background-color 0.3s ease;
+            cursor: text;
+        }
+        
+        #words-text {
+            /* Ensures words take up full container width */
+            display: block; 
+            white-space: normal; /* Allow text wrapping */
+        }
+
+        .word {
+            /* IMPORTANT FIX: Use inline-flex to help the browser treat the word span more reliably, 
+               reducing the chance of premature wrap for the invisible space. */
+            display: inline-flex; 
+            margin-right: 15px; /* Increased space between words */
+            white-space: nowrap;
+        }
+
+        .char {
+            display: inline-block;
+            opacity: 0.6;
+            transition: opacity 0.1s;
+        }
+
+        .active-word .char {
+            opacity: 1;
+        }
+        
+        /* Highlight the active word */
+        .active-word {
+            opacity: 1;
+        }
+
+        .current-char {
+            position: relative;
+            opacity: 1;
+        }
+
+        /* Caret/Cursor - Positioned BEFORE the character */
+        .current-char::before {
+            content: '|';
+            color: var(--accent-color);
+            animation: blink 1s step-end infinite;
+            position: absolute;
+            /* CRITICAL FIX: Move caret far enough left to clear the character */
+            left: -12px; 
+            top: 0;
+            opacity: 1;
+            width: 2px; /* Make the caret line thinner */
+        }
+        
+        /* When the character is correct (typed), retain position */
+        .char.correct.current-char::before {
+             left: -12px; 
+        }
+        
+        /* When the character is the first char of the word, its positioning is relative to the word, so we need to be careful */
+        .word:not(.finished) .char:first-child.current-char::before {
+             left: -12px;
+        }
+        
+        /* Hide caret when word is finished and next word starts */
+        .word:last-child.active-word.finished .current-char::before {
+            content: '';
+        }
+
+        /* Hide the caret when we are typing an extra character (overflow) */
+        .char.incorrect.extra.current-char::before {
+             content: '';
+        }
+
+        .correct {
+            color: var(--correct-color);
+            opacity: 1;
+        }
+
+        .incorrect {
+            color: var(--incorrect-color);
+            background-color: rgba(255, 0, 0, 0.1);
+            opacity: 1;
+        }
+        
+        .char.incorrect.extra {
+            /* Style for characters typed beyond the word length */
+            background-color: var(--incorrect-color);
+            color: var(--bg-color); /* Dark text on red background */
+            border-radius: 2px;
+            padding: 0 2px;
+            margin: 0 -2px; /* Correct spacing */
+        }
+
+        /* Input Field (Hidden but receives focus) */
+        #hidden-input {
+            opacity: 0;
+            position: absolute;
+            pointer-events: none;
+        }
+
+        /* Utility Class for Visibility */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Settings and Controls */
+        #controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            padding: 15px 30px;
+            background-color: var(--secondary-bg);
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px;
+        }
+
+        .control-group label {
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+            text-transform: uppercase;
+        }
+        
+        /* Specific group styling for alignment based on screenshot */
+        .control-group.theme-group, .control-group.font-group, .control-group.time-group {
+            border-right: 1px solid var(--primary-bg);
+            padding-right: 20px;
+        }
+        
+        /* The last group should not have a border */
+        .control-group:last-of-type {
+            border-right: none;
+            padding-right: 5px;
+        }
+
+        .control-buttons button {
+            padding: 8px 15px;
+            background-color: var(--primary-bg);
+            color: var(--text-color);
+            border: 1px solid var(--primary-bg);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .control-buttons button:hover {
+            background-color: var(--primary-bg);
+            border-color: var(--accent-color);
+        }
+
+        .control-buttons .active {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+            color: var(--bg-color);
+            font-weight: bold;
+        }
+
+        /* Restart Button Styling to match screenshot (Blue color) */
+        #restart-test-btn {
+            background-color: var(--correct-color) !important; 
+            color: var(--bg-color) !important;
+            border: none !important;
+            font-weight: bold !important;
+            padding: 8px 20px !important;
+        }
+        #restart-test-btn:hover {
+            background-color: #2a9cd8 !important; /* Darker blue on hover */
+        }
+
+        /* Results Modal */
+        #results-screen {
+            background-color: var(--secondary-bg); /* Use secondary bg for results box */
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            max-width: 400px;
+            margin: 40px auto;
+            text-align: center;
+            transition: background-color 0.3s ease;
+        }
+
+        #results-screen h2 {
+            color: var(--accent-color);
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px dashed var(--primary-bg);
+            font-size: 1.1rem;
+        }
+
+        .result-label {
+            opacity: 0.7;
+        }
+
+        .result-value {
+            color: var(--correct-color);
+            font-weight: bold;
+        }
+
+        #restart-button {
+            margin-top: 20px;
+            padding: 12px 30px;
+            background-color: var(--accent-color);
+            color: var(--bg-color);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        #restart-button:hover {
+            background-color: #e66a2a;
+        }
+
+        /* Custom Toggle Switch Styles (Flex-based for reliable movement) */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+
+        /* Hide the actual checkbox input */
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+            /* Ensure the input is visible to screen readers but hidden visually */
+            position: absolute;
+            pointer-events: none;
+        }
+
+        /* The custom slider area (controlled by the label) */
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--primary-bg);
+            transition: 0.4s;
+            border-radius: 20px;
+            border: 1px solid var(--text-color);
+            display: flex;
+            align-items: center;
+            justify-content: flex-start; 
+        }
+
+        /* The moving circle */
+        .slider:before {
+            content: "";
+            height: 14px;
+            width: 14px;
+            margin-left: 2px;
+            background-color: var(--text-color);
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        /* CRITICAL COLOR FIX: Apply accent color when the hidden input is checked */
+        /* Use the general sibling selector (~) since the label is between the input and the slider */
+        #voice-toggle:checked ~ .slider,
+        #sound-toggle:checked ~ .slider {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+            justify-content: flex-end; 
+        }
+        
+        #voice-toggle:checked ~ .slider:before,
+        #sound-toggle:checked ~ .slider:before {
+            background-color: var(--bg-color);
+            margin-right: 2px; 
+            margin-left: 0; 
+        }
+
+        /* Fallback: Ensure OFF state is styled correctly (default dark grey) */
+        .switch input:not(:checked) ~ .slider {
+             background-color: var(--primary-bg);
+             border-color: var(--text-color);
+        }
+        
+        /* Fallback for browsers that require specific label targeting */
+        .switch input:checked + .slider {
+             /* This was the issue, the structure changed. The fix is above. */
+        }
+
+        /* Style for disabled toggle */
+        .switch input:disabled ~ .slider {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Responsiveness */
+        @media (max-width: 768px) {
+            #app-container {
+                width: 95%;
+                padding: 10px;
+                /* Remove vertical centering on smaller screens to allow scrolling if needed */
+                position: relative;
+                top: auto;
+                left: auto;
+                transform: none;
+                padding-top: 40px; 
+            }
+
+            header h1 {
+                font-size: 2.5rem;
+            }
+
+            #word-container {
+                font-size: 1.5rem; /* Slightly smaller font on mobile */
+                max-height: 200px;
+                line-height: 1.6;
+            }
+
+            #controls {
+                gap: 10px;
+                padding: 15px;
+            }
+            
+            .control-group {
+                gap: 5px;
+            }
+            
+            .control-group.theme-group, .control-group.font-group, .control-group.time-group {
+                border-right: none;
+                padding-right: 0;
+                width: 100%;
+                justify-content: space-between;
+                flex-direction: row;
+                border-bottom: 1px dashed var(--primary-bg);
+                padding-bottom: 10px;
+            }
+            
+            .control-group:last-child {
+                border-bottom: none;
+                padding-bottom: 5px;
+            }
+            
+            .control-buttons button {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+
+            #results-screen {
+                padding: 20px;
+            }
+            
+            #content-generator {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- This is the hidden input field that captures all typing -->
+    <input type="text" id="hidden-input" autofocus autocomplete="off">
+
+    <div id="app-container">
+        <header>
+            <h1>Learn Fun</h1>
+        </header>
+        
+        <!-- NEW FEATURE: Content Generation Input -->
+        <div id="content-generator">
+            <input type="text" id="content-input" placeholder="Enter a theme (e.g., 'a short fantasy story', 'famous quotes')">
+            <button id="generate-btn">Generate Content</button>
+            <span id="loading-indicator" class="hidden">Loading...</span>
+        </div>
+        <!-- END NEW FEATURE -->
+
+        <!-- Typing Interface -->
+        <!-- Added tabindex to make it easily focusable, and click handler for convenience -->
+        <div id="word-container" tabindex="0" onclick="document.getElementById('hidden-input').focus()">
+            <span id="words-text">Click here or start typing to begin...</span>
+        </div>
+
+        <!-- Timer/WPM Display (NOW INCLUDES WORD COUNT) -->
+        <div id="stats" style="font-size: 1.2rem; color: var(--accent-color); font-family: var(--font-mono); margin-bottom: 10px;">
+            <span id="timer">0</span>s
+            <span id="wpm-display" style="margin-left: 20px;">0 WPM</span>
+            <span id="word-count-display" style="margin-left: 20px;">0 Words</span>
+        </div>
+
+
+        <!-- Settings and Controls -->
+        <div id="controls">
+            
+            <!-- Time Selection -->
+            <div class="control-group time-group">
+                <label>Time (s)</label>
+                <div class="control-buttons" id="time-controls">
+                    <!-- Default to 60 seconds -->
+                    <button data-time="15">15</button>
+                    <button data-time="30">30</button>
+                    <button data-time="60" class="active">60</button>
+                    <button data-time="120">120</button>
+                </div>
+            </div>
+            
+            <!-- Theme Selection -->
+            <div class="control-group theme-group">
+                <label>Theme</label>
+                <div class="control-buttons">
+                    <button data-theme="default" class="active">Dark</button>
+                    <button data-theme="light">Light</button>
+                    <button data-theme="retro">Retro</button>
+                </div>
+            </div>
+
+            <!-- Font Selection -->
+            <div class="control-group font-group">
+                <label>Font</label>
+                <div class="control-buttons">
+                    <button data-font="main" class="active">Sans</button>
+                    <button data-font="mono">Mono</button>
+                    <button data-font="fancy">Fancy</button>
+                </div>
+            </div>
+            
+            <!-- Master Sound Toggle (New Feature) -->
+            <div class="control-group">
+                <label>Sound</label>
+                <div class="switch">
+                    <!-- The input is hidden -->
+                    <input type="checkbox" id="sound-toggle" checked>
+                    <!-- Visible label/slider follows the hidden input -->
+                    <label for="sound-toggle" class="slider"></label>
+                </div>
+            </div>
+
+            <!-- Voice Toggle -->
+            <div class="control-group">
+                <label>Voice</label>
+                <div class="switch">
+                    <!-- The input is hidden -->
+                    <input type="checkbox" id="voice-toggle" checked>
+                    <!-- Visible label/slider follows the hidden input -->
+                    <label for="voice-toggle" class="slider"></label>
+                </div>
+            </div>
+
+             <!-- Restart Button -->
+             <button id="restart-test-btn">
+                Restart
+            </button>
+        </div>
+
+        <!-- Results Screen (Hidden initially) -->
+        <div id="results-screen" class="hidden">
+            <h2>Test Complete!</h2>
+            <div class="result-item">
+                <span class="result-label">WPM (Words Per Minute):</span>
+                <span class="result-value" id="result-wpm">0</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Accuracy:</span>
+                <span class="result-value" id="result-accuracy">0%</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Errors:</span>
+                <span class="result-value" id="result-errors">0</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Time Taken (Target):</span>
+                <span class="result-value" id="result-time">0s</span>
+            </div>
+            <button id="restart-button">Try Again</button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Word List (Fallback Only) ---
+        const FALLBACK_WORD_LIST = [
+            "the", "quick", "brown", "fox", "jumps", "over", "lazy", "dog", "keyboard", "typing",
+            "test", "speed", "accuracy", "minimal", "responsive", "design", "code", "challenge",
+            "developer", "project", "javascript", "html", "css", "vanilla", "framework", "library",
+            "future", "present", "complete", "result", "minute", "words", "character", "sound",
+            "voice", "toggle", "settings", "theme", "color", "font", "smooth", "gradient", "centered",
+            "function", "variable", "element", "console", "document", "window", "display", "position",
+            "style", "select", "button", "animation", "transition", "effect", "visual", "feedback",
+            "realtime", "interface", "validate", "active", "correctly", "incorrect", "progress",
+            "performance", "calculate", "listen", "event", "handle", "render", "state", "management",
+            "example", "data", "fetch", "query", "syntax", "commit", "branch", "merge", "server", "client",
+            "language", "mountain", "ocean", "river", "program", "science", "english", "history", "fiction",
+            "nonfiction", "computer", "mobile", "tablet", "desktop", "server", "network", "cloud", "security"
+        ];
+        
+        // --- Global State Variables ---
+        let currentWords = []; 
+        let currentWordIndex = 0;
+        let currentCharIndex = 0;
+        let timer = null;
+        let startTime = 0;
+        let totalTime = 0;
+        let correctKeystrokes = 0;
+        let incorrectKeystrokes = 0;
+        let uncorrectedErrors = 0;
+        let isTestRunning = false;
+        let isMasterSoundEnabled = true; // New master control
+        let isVoiceEnabled = false; // Voice is controlled by the dedicated toggle
+        let testDuration = 60; 
+
+        // --- DOM Elements ---
+        const wordContainer = document.getElementById('word-container');
+        const wordsText = document.getElementById('words-text');
+        const hiddenInput = document.getElementById('hidden-input');
+        const resultsScreen = document.getElementById('results-screen');
+        const statsDisplay = document.getElementById('stats');
+        const timerDisplay = document.getElementById('timer');
+        const wpmDisplay = document.getElementById('wpm-display');
+        const wordCountDisplay = document.getElementById('word-count-display'); 
+        const voiceToggle = document.getElementById('voice-toggle');
+        const soundToggle = document.getElementById('sound-toggle'); 
+        const timeControls = document.getElementById('time-controls');
+        const contentInput = document.getElementById('content-input');
+        const generateBtn = document.getElementById('generate-btn');
+        const loadingIndicator = document.getElementById('loading-indicator');
+
+
+        // --- Utility Functions ---
+
+        /**
+         * Calculates and updates the WPM display in real-time.
+         */
+        const updateWPM = () => {
+            if (!isTestRunning || totalTime === 0) return;
+            
+            // Net WPM: (Correct Keystrokes - Uncorrected Errors) / 5 / Time in Minutes
+            const timeInMinutes = totalTime / 60;
+            const netCorrectChars = correctKeystrokes - uncorrectedErrors;
+            const currentWPM = timeInMinutes > 0 ? Math.max(0, Math.round((netCorrectChars / 5) / timeInMinutes)) : 0;
+            
+            timerDisplay.textContent = testDuration - totalTime; // Display countdown
+            wpmDisplay.textContent = `${currentWPM} WPM`;
+        
+            if (totalTime >= testDuration) {
+                endTest();
+            }
+        };
+
+        /**
+         * Web Audio API: Generates and plays a short "click" sound.
+         */
+        const playSpaceSound = () => {
+            // Check Master Sound Control first
+            if (!isMasterSoundEnabled) return;
+
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                const audioCtx = new AudioContext();
+
+                const oscillator = audioCtx.createOscillator();
+                oscillator.type = 'square';
+                oscillator.frequency.setValueAtTime(330, audioCtx.currentTime); 
+
+                const gainNode = audioCtx.createGain();
+                gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime); 
+                gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.04); 
+
+                oscillator.connect(gainNode).connect(audioCtx.destination);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.04);
+
+            } catch (error) {
+                console.error("Web Audio API error:", error);
+            }
+        };
+
+        /**
+         * Web Speech API: Pronounces the given word.
+         */
+        const pronounceWord = (word) => {
+            if (!window.speechSynthesis) return;
+
+            // Check Master Sound Control first
+            if (!isMasterSoundEnabled) {
+                window.speechSynthesis.cancel();
+                return;
+            }
+            
+            window.speechSynthesis.cancel();
+            
+            if (!isVoiceEnabled) return; // Only speak if dedicated voice is enabled
+
+            const utterance = new SpeechSynthesisUtterance(word);
+            utterance.rate = 1.2; 
+            utterance.pitch = 1.0;
+
+            window.speechSynthesis.speak(utterance);
+        };
+
+        /**
+         * Cleans text (removes newlines, extra spaces) and splits it into an array of words.
+         * @param {string} text 
+         * @returns {string[]}
+         */
+        const processTextToWords = (text) => {
+             // 1. Replace all newlines with a single space
+             let cleanedText = text.replace(/[\r\n]+/g, ' '); 
+             // 2. Trim whitespace and split by spaces, filtering out empty strings
+             return cleanedText.trim().split(/\s+/).filter(word => word.length > 0);
+        };
+
+        /**
+         * Generates a random set of words for the test from the FALLBACK list.
+         */
+        const generateFallbackWords = (count = 50) => {
+            const requiredWords = Math.max(count, 150); 
+            const shuffled = [...FALLBACK_WORD_LIST].sort(() => 0.5 - Math.random());
+            let words = [];
+            
+            while (words.length < requiredWords) {
+                words.push(...shuffled);
+            }
+            return words.slice(0, requiredWords);
+        };
+        
+        /**
+         * Sets the words for the test and restarts.
+         * @param {string[]} words 
+         */
+        const setTestContent = (words) => {
+            currentWords = words;
+            startTest();
+        };
+
+        /**
+         * Renders the words onto the screen.
+         */
+        const renderWords = () => {
+            wordsText.innerHTML = '';
+            wordContainer.scrollTop = 0; 
+            
+            // Clear the input value when rendering new words
+            hiddenInput.value = '';
+
+            // Handle case where content might be empty (e.g., failed API call)
+            if (currentWords.length === 0) {
+                 wordsText.textContent = "Content failed to load. Try again or generate new content.";
+                 return;
+            }
+            
+            currentWords.forEach((word, wordIndex) => {
+                const wordElement = document.createElement('span');
+                wordElement.classList.add('word');
+                if (wordIndex === 0) {
+                    wordElement.classList.add('active-word');
+                }
+
+                word.split('').forEach((char, charIndex) => {
+                    const charElement = document.createElement('span');
+                    charElement.classList.add('char');
+                    charElement.textContent = char;
+
+                    if (wordIndex === 0 && charIndex === 0) {
+                        charElement.classList.add('current-char');
+                    }
+                    wordElement.appendChild(charElement);
+                });
+
+                wordsText.appendChild(wordElement);
+                wordsText.appendChild(document.createTextNode(' '));
+            });
+        };
+
+        /**
+         * Finds the current active elements (word and character).
+         */
+        const getCurrentElements = () => {
+            const activeWordElement = document.querySelector('.word.active-word');
+            const allWordElements = document.querySelectorAll('.word');
+            
+            return { activeWordElement, allWordElements };
+        };
+
+        /**
+         * Updates the scroll position of the word container to keep the active word visible.
+         */
+        const scrollIfNeeded = (activeWordElement) => {
+            if (!activeWordElement) return;
+
+            const wordRect = activeWordElement.getBoundingClientRect();
+            const currentScrollTop = wordContainer.scrollTop;
+            const activeWordRelativeTop = activeWordElement.offsetTop;
+            const lineHeight = wordRect.height * 1.5; 
+            
+            if (activeWordRelativeTop > currentScrollTop + lineHeight) {
+                wordContainer.scrollTop = activeWordRelativeTop - lineHeight;
+            } 
+            else if (activeWordRelativeTop < currentScrollTop) {
+                wordContainer.scrollTop = activeWordRelativeTop;
+            }
+        };
+
+        // --- Core Game Logic ---
+
+        /**
+         * Initializes the test environment.
+         */
+        const startTest = (initialLoad = false) => {
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
+            
+            clearInterval(timer);
+            isTestRunning = false;
+
+            if (initialLoad && currentWords.length === 0) {
+                 currentWords = generateFallbackWords();
+            } else if (currentWords.length === 0) {
+                 currentWords = generateFallbackWords();
+            }
+
+            // Reset state
+            currentWordIndex = 0;
+            currentCharIndex = 0;
+            correctKeystrokes = 0;
+            incorrectKeystrokes = 0;
+            uncorrectedErrors = 0;
+            totalTime = 0;
+            
+            // Update UI
+            timerDisplay.textContent = testDuration; 
+            wpmDisplay.textContent = '0 WPM';
+            wordCountDisplay.textContent = `${currentWords.length} Words`; 
+            statsDisplay.classList.remove('hidden');
+            resultsScreen.classList.add('hidden');
+            wordContainer.classList.remove('hidden');
+            wordsText.style.visibility = 'visible';
+
+            renderWords();
+
+            // Set initial focus
+            hiddenInput.value = '';
+            hiddenInput.focus();
+            
+            // Pronounce the first word if voice is enabled
+            if (isVoiceEnabled && isMasterSoundEnabled && currentWords.length > 0) {
+                pronounceWord(currentWords[0]);
+            }
+
+            isTestRunning = false; 
+        };
+        
+        /**
+         * Starts the timer once the user begins typing.
+         */
+        const startTimer = () => {
+             if (isTestRunning) return;
+             isTestRunning = true;
+             startTime = Date.now();
+             timer = setInterval(() => {
+                totalTime = Math.floor((Date.now() - startTime) / 1000);
+                updateWPM();
+                if (totalTime >= testDuration) {
+                    endTest();
+                }
+             }, 1000);
+        }
+
+        /**
+         * Calculates results and displays the results screen.
+         */
+        const endTest = () => {
+            if (!isTestRunning) return;
+
+            clearInterval(timer);
+            isTestRunning = false;
+
+            const timeUsed = testDuration; 
+            const timeInMinutes = timeUsed / 60;
+            
+            let totalTypedChars = 0;
+            let correctlyTypedChars = 0;
+            let finalUncorrectedErrors = 0;
+
+            document.querySelectorAll('.word').forEach((wordElement, index) => {
+                if (index <= currentWordIndex) {
+                    Array.from(wordElement.children).forEach(charElement => {
+                        if (charElement.classList.contains('correct') || charElement.classList.contains('incorrect')) {
+                            totalTypedChars++;
+                        }
+                        
+                        if (charElement.classList.contains('correct')) {
+                            correctlyTypedChars++;
+                        }
+                        if (charElement.classList.contains('incorrect')) {
+                            finalUncorrectedErrors++;
+                        }
+                    });
+                }
+            });
+            
+            const netCorrectChars = correctlyTypedChars - finalUncorrectedErrors;
+            const finalWPM = timeInMinutes > 0 ? Math.max(0, Math.round((netCorrectChars / 5) / timeInMinutes)) : 0;
+            
+            const accuracy = totalTypedChars > 0 ? ((correctlyTypedChars / totalTypedChars) * 100).toFixed(2) : 0;
+
+            document.getElementById('result-wpm').textContent = finalWPM;
+            document.getElementById('result-accuracy').textContent = `${accuracy}%`;
+            document.getElementById('result-time').textContent = `${timeUsed}s (Target)`;
+            document.getElementById('result-errors').textContent = finalUncorrectedErrors;
+
+            wordsText.style.visibility = 'hidden';
+            statsDisplay.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+            hiddenInput.blur(); 
+            
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
+        };
+
+        /**
+         * Handles all keyboard input events.
+         */
+        const handleKeydown = (event) => {
+            if (document.activeElement !== hiddenInput) {
+                if (event.key === ' ' && document.activeElement !== contentInput) {
+                    event.preventDefault();
+                }
+                return;
+            }
+
+            const key = event.key;
+            
+            if (!isTestRunning && totalTime >= testDuration && key !== 'Enter' && key !== 'Tab') {
+                return;
+            }
+
+            if (!isTestRunning) {
+                if (key.length === 1 && key !== 'Shift' && key !== 'Control' && key !== 'Alt' && key !== 'Meta' && key !== 'Backspace' && key !== ' ') {
+                    startTimer();
+                } else if (key === 'Backspace' && currentWordIndex === 0 && currentCharIndex === 0) {
+                    return;
+                }
+            }
+            
+            if (key === ' ') {
+                event.preventDefault();
+            }
+
+            const { activeWordElement, allWordElements } = getCurrentElements();
+            if (!activeWordElement) return;
+
+            const currentWord = currentWords[currentWordIndex];
+            const wordChars = activeWordElement.children;
+
+            if (key.length === 1) { 
+                
+                if (key !== ' ') { 
+                    
+                    const expectedChar = currentWord[currentCharIndex];
+                    let charElement = wordChars[currentCharIndex];
+                    
+                    activeWordElement.querySelector('.current-char')?.classList.remove('current-char');
+
+                    if (currentCharIndex < currentWord.length) {
+                        if (key === expectedChar) {
+                            if (!charElement.classList.contains('correct')) {
+                                correctKeystrokes++;
+                            }
+                            if (charElement.classList.contains('incorrect')) {
+                                uncorrectedErrors--;
+                            }
+                            charElement.classList.add('correct');
+                            charElement.classList.remove('incorrect'); 
+                            
+                        } else {
+                            if (!charElement.classList.contains('incorrect')) {
+                                uncorrectedErrors++;
+                            }
+                            incorrectKeystrokes++; 
+                            charElement.classList.add('incorrect');
+                            charElement.classList.remove('correct');
+                        }
+                    } else {
+                        if (currentCharIndex === activeWordElement.children.length) {
+                             uncorrectedErrors++;
+                             incorrectKeystrokes++;
+                             
+                             charElement = document.createElement('span');
+                             charElement.classList.add('char', 'incorrect', 'extra');
+                             charElement.textContent = key;
+                             activeWordElement.appendChild(charElement);
+                        } else {
+                             console.error("Typing logic error: Cursor index mismatch during overflow.");
+                        }
+                    }
+                    
+                    currentCharIndex++;
+                    
+                    const nextChar = activeWordElement.children[currentCharIndex];
+                    if (nextChar) {
+                        nextChar.classList.add('current-char');
+                    } else {
+                        let caretSpace = activeWordElement.lastElementChild;
+                        
+                        if (!caretSpace || !caretSpace.classList.contains('current-char')) {
+                            caretSpace = document.createElement('span');
+                            caretSpace.classList.add('char');
+                            activeWordElement.appendChild(caretSpace);
+                        }
+                        caretSpace.classList.add('current-char');
+                        caretSpace.textContent = ''; 
+                        activeWordElement.classList.add('finished');
+                    }
+                    
+                } else { // Key is Space
+
+                    playSpaceSound();
+                    
+                    if (currentCharIndex > 0) {
+                        
+                        activeWordElement.querySelector('.current-char')?.classList.remove('current-char');
+                        activeWordElement.classList.remove('active-word');
+                        activeWordElement.classList.add('finished');
+                        
+                        currentWordIndex++; 
+                        currentCharIndex = 0;
+
+                        if (currentWordIndex >= currentWords.length || totalTime >= testDuration) {
+                            endTest();
+                            return;
+                        }
+                        
+                        if (isVoiceEnabled && isMasterSoundEnabled) {
+                            const nextWordToPronounce = currentWords[currentWordIndex];
+                            if (nextWordToPronounce) {
+                                pronounceWord(nextWordToPronounce);
+                            }
+                        }
+
+                        const nextWordElement = allWordElements[currentWordIndex];
+                        if (nextWordElement) {
+                            nextWordElement.classList.add('active-word');
+
+                            const nextChar = nextWordElement.querySelector('.char');
+                            if (nextChar) {
+                                nextChar.classList.add('current-char');
+                            }
+                            
+                            scrollIfNeeded(nextWordElement); 
+                        }
+                    } else {
+                        // Ignore space if at the beginning of a word
+                    }
+                }
+            } else if (key === 'Backspace') {
+                
+                if (currentCharIndex === 0) {
+                    
+                    if (currentWordIndex > 0) {
+                        const prevWordIndex = currentWordIndex - 1;
+                        const prevWordElement = allWordElements[prevWordIndex];
+
+                        activeWordElement.classList.remove('active-word');
+                        activeWordElement.classList.remove('finished');
+                        activeWordElement.querySelector('.current-char')?.classList.remove('current-char');
+
+                        prevWordElement.classList.add('active-word');
+                        prevWordElement.classList.remove('finished');
+                        
+                        currentWordIndex = prevWordIndex;
+                        currentCharIndex = prevWordElement.children.length; 
+
+                        const lastCharOfPrevWord = prevWordElement.lastElementChild;
+                        if (lastCharOfPrevWord) {
+                            lastCharOfPrevWord.classList.add('current-char');
+                        }
+                        
+                        scrollIfNeeded(prevWordElement);
+                        return; 
+                    }
+                    return; 
+                }
+
+                activeWordElement.classList.remove('finished');
+                
+                activeWordElement.querySelector('.current-char')?.classList.remove('current-char');
+
+                currentCharIndex--;
+
+                const charElementToReset = activeWordElement.children[currentCharIndex];
+                
+                if (charElementToReset && charElementToReset.classList.contains('extra')) {
+                     
+                     if (charElementToReset.classList.contains('incorrect')) {
+                        uncorrectedErrors--; 
+                        incorrectKeystrokes--;
+                     }
+                     
+                     charElementToReset.remove();
+                     
+                     currentCharIndex = activeWordElement.children.length;
+
+                     const lastExpectedChar = activeWordElement.children[currentWord.length - 1];
+                     
+                     if (lastExpectedChar) {
+                         lastExpectedChar.classList.add('current-char');
+                         currentCharIndex = lastExpectedChar.parentElement.children.length - (lastExpectedChar.nextElementSibling ? 0 : 1);
+                     }
+                     return; 
+                }
+                
+                if (charElementToReset) {
+                    
+                    if (charElementToReset.classList.contains('correct')) {
+                        correctKeystrokes--;
+                    } else if (charElementToReset.classList.contains('incorrect')) {
+                        incorrectKeystrokes--;
+                        uncorrectedErrors--; 
+                    }
+                    
+                    charElementToReset.classList.remove('correct', 'incorrect');
+                    charElementToReset.classList.add('current-char');
+                }
+            } else if (key === 'Shift' || key === 'Control' || key === 'Alt' || key === 'Meta' || key === 'Tab' || key === 'Enter') {
+                return;
+            }
+        };
+
+        // --- Content Generation (LLM API) Logic ---
+
+        // >>>>>>>>>>>>>>>>>>>>>>>>>>> IMPORTANT: API KEY REQUIRED <<<<<<<<<<<<<<<<<<<<<<<<<<
+        // The API call will only work when run locally if you paste your own Gemini API Key here.
+        // Get your key from Google AI Studio.
+        const apiKey = "AIzaSyBFILjpWf3LDYWBOwaN_4lQRty00LU1iKY"; // <--- USER'S GEMINI API KEY INSERTED HERE
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+        
+        const generateContentFromLLM = async (prompt) => {
+            
+            if (!apiKey) {
+                alert("API Key is missing. Please edit the index.html file and paste your Gemini API key to use content generation locally.");
+                console.error("Content generation failed: apiKey is empty.");
+                return null;
+            }
+
+            generateBtn.disabled = true;
+            contentInput.disabled = true;
+            loadingIndicator.classList.remove('hidden');
+            wordsText.textContent = "Generating content...";
+
+            const systemPrompt = "You are a content generator for a typing test application. Generate a passage of approximately 100-150 words based on the user's prompt. The output MUST be a single paragraph of engaging text, suitable for typing practice. Include capitalization and punctuation, but DO NOT use any markdown formatting like bold, lists, or headers.";
+
+            const userQuery = `Generate a typing passage with the following theme: "${prompt}"`;
+
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: {
+                    parts: [{ text: systemPrompt }]
+                },
+            };
+
+            const maxRetries = 5;
+            let delay = 1000;
+            let response;
+
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        const text = result.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                        
+                        if (text) {
+                            const newWords = processTextToWords(text);
+                            return newWords.length > 10 ? newWords : null; 
+                        }
+                        break; 
+                    }
+                    
+                    if (response.status === 429 || response.status >= 500) {
+                        if (i < maxRetries - 1) {
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                            delay *= 2; 
+                        }
+                    } else {
+                        break;
+                    }
+
+                } catch (error) {
+                    console.error("API Call failed:", error);
+                    break;
+                }
+            }
+            return null; 
+        };
+
+        const handleGenerateContent = async () => {
+            const prompt = contentInput.value.trim();
+
+            if (!prompt) {
+                wordsText.textContent = "Please enter a theme before generating content.";
+                return;
+            }
+            
+            const generatedWords = await generateContentFromLLM(prompt);
+
+            generateBtn.disabled = false;
+            contentInput.disabled = false;
+            loadingIndicator.classList.add('hidden');
+
+            if (generatedWords && generatedWords.length > 0) {
+                setTestContent(generatedWords);
+            } else {
+                wordsText.textContent = "Failed to generate content. Please try a different theme or check the console for API errors.";
+                setTestContent(generateFallbackWords());
+            }
+        };
+
+        // --- Settings/Theme Logic ---
+
+        const handleControlsClick = (event) => {
+            const target = event.target;
+            const root = document.documentElement;
+
+            if (target.tagName === 'BUTTON') {
+                if (target.dataset.theme) {
+                    document.querySelectorAll('[data-theme]').forEach(btn => btn.classList.remove('active'));
+                    target.classList.add('active');
+                    root.className = `theme-${target.dataset.theme}`;
+                } else if (target.dataset.font) {
+                    document.querySelectorAll('[data-font]').forEach(btn => btn.classList.remove('active'));
+                    target.classList.add('active');
+                    let fontVariable = '';
+                    let monoFont = '';
+                    switch (target.dataset.font) {
+                        case 'main': fontVariable = 'var(--font-main)'; monoFont = 'var(--font-mono)'; break;
+                        case 'mono': fontVariable = 'var(--font-mono)'; monoFont = 'var(--font-mono)'; break;
+                        case 'fancy': fontVariable = 'var(--font-fancy)'; monoFont = 'var(--font-mono)'; break;
+                    }
+                    root.style.setProperty('--font-main', fontVariable);
+                    document.getElementById('word-container').style.fontFamily = monoFont;
+                } else if (target.dataset.time) {
+                    document.querySelectorAll('[data-time]').forEach(btn => btn.classList.remove('active'));
+                    target.classList.add('active');
+                    const newDuration = parseInt(target.dataset.time);
+                    if (newDuration !== testDuration) {
+                        testDuration = newDuration;
+                        startTest(); 
+                    }
+                }
+            }
+        };
+
+        /**
+         * Handles the dedicated Voice toggle switch.
+         */
+        const handleVoiceToggle = (event) => {
+            isVoiceEnabled = event.target.checked;
+            if (!isVoiceEnabled && window.speechSynthesis) {
+                 // Cancel any ongoing speech when the dedicated voice is turned off
+                 window.speechSynthesis.cancel();
+            }
+        };
+        
+        /**
+         * Handles the Master Sound toggle switch (controls both voice and spacebar click).
+         */
+        const handleMasterSoundToggle = (event) => {
+            isMasterSoundEnabled = event.target.checked;
+            
+            if (!isMasterSoundEnabled) {
+                // If master sound is OFF, cancel all speech immediately
+                if (window.speechSynthesis) {
+                    window.speechSynthesis.cancel();
+                }
+            }
+            
+            // Note: We don't change the voiceToggle state here, as the master control is secondary
+            // The `pronounceWord` and `playSpaceSound` functions check `isMasterSoundEnabled`.
+        };
+
+
+        // --- Event Listeners and Initialization ---
+
+        window.onload = () => {
+            const defaultTimeButton = document.querySelector('#time-controls .active');
+            if (defaultTimeButton) {
+                testDuration = parseInt(defaultTimeButton.dataset.time);
+            }
+            
+            // Set initial state from the checkboxes
+            isMasterSoundEnabled = soundToggle.checked;
+            isVoiceEnabled = voiceToggle.checked;
+
+            startTest(true); 
+            
+            if (!('speechSynthesis' in window)) {
+                voiceToggle.disabled = true;
+                isVoiceEnabled = false;
+                // Update the label text
+                document.querySelector('.control-group label[for="voice-toggle"]').textContent = 'Voice (N/A)';
+                console.warn("Web Speech API (Speech Synthesis) is not supported by this browser.");
+            }
+        };
+
+        // Listen for changes on the hidden input element (which happens when the label is clicked)
+        document.addEventListener('change', (event) => {
+             if (event.target.id === 'voice-toggle') {
+                handleVoiceToggle(event);
+            } else if (event.target.id === 'sound-toggle') {
+                handleMasterSoundToggle(event);
+            }
+        });
+
+        document.addEventListener('keydown', handleKeydown);
+        document.getElementById('controls').addEventListener('click', handleControlsClick);
+        
+        document.getElementById('restart-button').addEventListener('click', startTest);
+        document.getElementById('restart-test-btn').addEventListener('click', startTest); 
+        
+        generateBtn.addEventListener('click', handleGenerateContent);
+        
+        document.documentElement.className = 'theme-default';
+        
+    </script>
+</body>
+</html>
