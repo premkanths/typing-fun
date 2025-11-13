@@ -1,73 +1,109 @@
-Learn Fun Typing Test
 
-Project Overview
+# **Learn Fun Typing Test**
 
-Learn Fun is a modern, Monkeytype-inspired web application for practicing typing speed and accuracy. Built using only vanilla HTML, CSS, and JavaScript, it features a clean, responsive interface, customizable themes, and unique dynamic content generation powered by the Google Gemini API.
+### **🔗 Live Demo:**
 
-This project includes advanced features like real-time WPM calculation, cross-word backspacing, dedicated sound and voice controls, and multiple test durations.
+👉 [https://premkanths.github.io/typing-fun/](https://premkanths.github.io/typing-fun/)
 
-Features
+A modern, Monkeytype-inspired typing test built with **vanilla HTML, CSS, and JavaScript**. It features real-time WPM tracking, dynamic text generation using **Google Gemini API**, customizable themes, sound effects, and a clean responsive interface.
 
-Dynamic Content Generation: Users can enter a theme (e.g., "a short sci-fi story") and the Gemini API will generate a unique typing passage.
+---
 
-Real-Time Feedback: Shows correct (blue) and incorrect (red) letters instantly.
+## 🚀 **Project Overview**
 
-Customizable Experience:
+**Learn Fun** is designed to make typing practice engaging and customizable. Users can choose typing durations, select themes, switch fonts, enable sounds, and even generate entirely new typing passages using AI prompts.
 
-Dark/Light/Retro color themes.
+The app is simple, fast, and works entirely in the browser—no backend required.
 
-Multiple font options.
+---
 
-Test durations of 15s, 30s, 60s, and 120s.
+## ✨ **Features**
 
-Full Audio Control: Separate toggles for master sound (spacebar click) and word pronunciation (voice).
+### 🔹 **Dynamic Content Generation**
 
-Advanced Typing Logic: Allows backspacing across previous words to correct errors.
+* Enter any theme (e.g., *"short sci-fi story"*).
+* The **Gemini API** generates a new typing passage instantly.
 
-Responsive Design: Optimized for desktop and mobile devices.
+### 🔹 **Real-Time Typing Feedback**
 
-How to Run the Project Locally
+* Correct letters highlight in **blue**.
+* Incorrect letters highlight in **red**.
 
-Since this project uses client-side JavaScript, you can run it directly in your web browser.
+### 🔹 **Customizable Experience**
 
-Clone the Repository:
+* Light, Dark, and Retro themes
+* Multiple font styles
+* Test durations: **15s, 30s, 60s, 120s**
 
-git clone [https://github.com/YOUR_USERNAME/learn-fun-typing-test.git](https://github.com/YOUR_USERNAME/learn-fun-typing-test.git)
+### 🔹 **Full Audio Control**
+
+* Toggle **spacebar click sound**
+* Toggle **voice pronunciation** (Web Speech API)
+
+### 🔹 **Advanced Typing Logic**
+
+* Smooth error handling
+* Backspace across previous words
+* Accurate WPM and accuracy calculation
+
+### 🔹 **Fully Responsive**
+
+* Works perfectly on both **desktop and mobile**.
+
+---
+
+## 🛠️ **How to Run Locally**
+
+Because this is a fully client-side app, you can run it directly in your browser.
+
+### **1. Clone the Repository**
+
+```bash
+git clone https://github.com/YOUR_USERNAME/learn-fun-typing-test.git
+```
+
+### **2. Open the App**
+
+* Go to the cloned folder
+* Open **index.html** in any browser
+* Done! 🎉
+
+---
+
+## ⚠️ **Important: Dynamic Content Generation & API Key**
+
+The "Generate Content" button uses the **Gemini API**.
 
 
-Open the File: Navigate to the cloned folder and double-click index.html to open it in your browser.
+### If you want to change the key:
 
-⚠️ IMPORTANT: Enabling Dynamic Content Generation
+1. Get a new key from **Google AI Studio**
+2. Open `index.html`
+3. Find this line:
 
-The "Generate Content" feature uses the Gemini API. For security reasons, the API key must be managed by the user when running the file locally.
+```javascript
+const apiKey = "YOUR_API_KEY_HERE";
+```
 
-The key has already been inserted in the index.html file (see line ~800 in the <script> tag), so the feature should work out-of-the-box.
+4. Replace it with your new key.
 
-If you are using this code base and want to update the key or use a different one, follow these steps:
+---
 
-Get your Gemini API Key from Google AI Studio.
+## 🧰 **Technologies Used**
 
-Open index.html in a text editor.
+* **HTML5** – Structure
+* **CSS3** – Themes, layout, animations
+* **JavaScript (Vanilla)** – Typing logic, WPM calculations, input handling
+* **Web Speech API** – Word pronunciation
+* **Web Audio API** – Spacebar click sounds
+* **Google Gemini API** – Dynamic typing content generation
 
-Find the const apiKey line (around line 800) and replace the existing key with your own:
+---
 
-const apiKey = "YOUR_NEW_API_KEY_HERE"; 
+## 📜 **License**
 
+This project is completely open-source.
+You may add a license such as **MIT** if needed.
 
-Technologies Used
+---
 
-HTML5: Structure and Semantics
-
-CSS3: Styling, Theming (using CSS Variables), and Gradient Animation
-
-JavaScript (Vanilla): Core typing logic, state management, WPM calculation, and UI control
-
-Web Speech API: Word pronunciation
-
-Web Audio API: Spacebar click sound
-
-Gemini API: Dynamic content generation
-
-License
-
-This project is open-source. (You can add a license like MIT here if you want).
